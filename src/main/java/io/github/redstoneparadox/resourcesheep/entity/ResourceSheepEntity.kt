@@ -8,18 +8,25 @@ import net.minecraft.item.ItemStack
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.sound.SoundCategory
 import net.minecraft.sound.SoundEvents
+import net.minecraft.util.Identifier
 import net.minecraft.world.World
 
 class ResourceSheepEntity(entityType: EntityType<out SheepEntity>, world: World): SheepEntity(entityType, world) {
-    private val RESOURCE_DROPS: MutableMap<String, ItemStack> = mutableMapOf()
-    var resource: String = ""
+    private val RESOURCE_DROPS: MutableMap<Identifier, ItemStack> = mutableMapOf()
+    var resource: Identifier = Identifier("minecraft:air")
 
     init {
         val defaultStack = ItemStack(ResourceSheepItems.RESOURCE_WOOL)
-        val nbt = defaultStack.orCreateTag
+        var nbt = defaultStack.orCreateTag
         nbt.putString("resource", "minecraft:air")
 
-        RESOURCE_DROPS[""] = defaultStack
+        RESOURCE_DROPS[Identifier("minecraft:air")] = defaultStack
+
+        val coalStack = defaultStack.copy()
+        nbt = coalStack.orCreateTag
+        nbt.putString("resource", "minecraft:coal")
+
+        RESOURCE_DROPS[Identifier("minecraft:coal")] = coalStack
     }
 
     override fun sheared(shearedSoundCategory: SoundCategory?) {
@@ -40,12 +47,12 @@ class ResourceSheepEntity(entityType: EntityType<out SheepEntity>, world: World)
     }
 
     override fun toTag(tag: CompoundTag): CompoundTag {
-        tag.putString("resource", resource)
+        tag.putString("resource", resource.toString())
         return super.toTag(tag)
     }
 
     override fun fromTag(tag: CompoundTag) {
-        if (tag.contains("resource")) resource = tag.getString("resource")
+        if (tag.contains("resource")) resource = Identifier(tag.getString("resource"))
         super.fromTag(tag)
     }
 }
