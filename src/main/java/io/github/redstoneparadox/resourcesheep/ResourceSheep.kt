@@ -1,6 +1,7 @@
 package io.github.redstoneparadox.resourcesheep
 
 import io.github.redstoneparadox.resourcesheep.entity.ResourceSheepEntity
+import io.github.redstoneparadox.resourcesheep.item.ResourceSheepItems
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.`object`.builder.v1.entity.FabricDefaultAttributeRegistry
 import net.fabricmc.fabric.api.`object`.builder.v1.entity.FabricEntityTypeBuilder
@@ -22,6 +23,8 @@ object ResourceSheep: ModInitializer {
         println("Sanity check!")
         Registry.register(Registry.ENTITY_TYPE, id("resource_sheep"), RESOURCE_SHEEP_ENTITY_TYPE)
         FabricDefaultAttributeRegistry.register(RESOURCE_SHEEP_ENTITY_TYPE, SheepEntity.createSheepAttributes())
+
+        ResourceSheepItems.init()
     }
 
     fun id(path: String): Identifier {

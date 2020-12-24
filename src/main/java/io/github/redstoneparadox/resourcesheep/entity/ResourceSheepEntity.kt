@@ -1,22 +1,25 @@
 package io.github.redstoneparadox.resourcesheep.entity
 
+import io.github.redstoneparadox.resourcesheep.item.ResourceSheepItems
 import net.minecraft.entity.EntityType
-import net.minecraft.entity.attribute.AttributeContainer
 import net.minecraft.entity.passive.SheepEntity
 import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.ItemConvertible
-import net.minecraft.item.Items
+import net.minecraft.item.ItemStack
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.sound.SoundCategory
 import net.minecraft.sound.SoundEvents
 import net.minecraft.world.World
 
 class ResourceSheepEntity(entityType: EntityType<out SheepEntity>, world: World): SheepEntity(entityType, world) {
-    private val RESOURCE_DROPS: MutableMap<String, ItemConvertible> = mutableMapOf()
+    private val RESOURCE_DROPS: MutableMap<String, ItemStack> = mutableMapOf()
     var resource: String = ""
 
     init {
-        RESOURCE_DROPS[""] = Items.AIR
+        val defaultStack = ItemStack(ResourceSheepItems.RESOURCE_WOOL)
+        val nbt = defaultStack.orCreateTag
+        nbt.putString("resource", "minecraft:air")
+
+        RESOURCE_DROPS[""] = defaultStack
     }
 
     override fun sheared(shearedSoundCategory: SoundCategory?) {
@@ -25,7 +28,7 @@ class ResourceSheepEntity(entityType: EntityType<out SheepEntity>, world: World)
         val i = 1 + random.nextInt(3)
 
         for (j in 0 until i) {
-            val itemEntity = this.dropItem(RESOURCE_DROPS[resource], 1)
+            val itemEntity = this.dropStack(RESOURCE_DROPS[resource], 1.0f)
             if (itemEntity != null) {
                 itemEntity.velocity = itemEntity.velocity.add(
                     ((random.nextFloat() - random.nextFloat()) * 0.1f).toDouble(),
@@ -42,7 +45,7 @@ class ResourceSheepEntity(entityType: EntityType<out SheepEntity>, world: World)
     }
 
     override fun fromTag(tag: CompoundTag) {
-        resource = tag.getString("resource")
+        if (tag.contains("resource")) resource = tag.getString("resource")
         super.fromTag(tag)
     }
 }
