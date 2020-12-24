@@ -1,29 +1,32 @@
 {
   "schemaVersion": 1,
-  "id": "modid",
+  "id": "resourcesheep",
   "version": "${version}",
 
-  "name": "Example Mod",
-  "description": "This is an example description! Tell everyone what your mod is about!",
+  "name": "Resource Sheep",
+  "description": "Adds configurable sheep that can be shorn for resources.",
   "authors": [
-    "Me!"
+    "RedstoneParadox"
   ],
   "contact": {
-    "homepage": "https://fabricmc.net/",
-    "sources": "https://github.com/FabricMC/fabric-example-mod"
+    "homepage": "https://github.com/RedstoneParadox/ResourceSheep",
+    "sources": "https://github.com/RedstoneParadox/ResourceSheep"
   },
 
-  "license": "CC0-1.0",
-  "icon": "assets/modid/icon.png",
+  "license": "MIT",
+  "icon": "assets/resourcesheep/icon.png",
 
   "environment": "*",
   "entrypoints": {
     "main": [
-      "net.fabricmc.example.ExampleModKt::init"
+      {
+        "adapter": "kotlin",
+        "value": "io.github.redstoneparadox.resourcesheep.ResourceSheep"
+      }
     ]
   },
   "mixins": [
-    "modid.mixins.json"
+    "resourcesheep.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=0.8.7",
