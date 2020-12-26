@@ -29,6 +29,12 @@
         "adapter": "kotlin",
         "value": "io.github.redstoneparadox.resourcesheep.client.ResourceSheepClient"
       }
+    ],
+    "preLaunch": [
+      {
+        "adapter": "kotlin",
+        "value": "io.github.redstoneparadox.resourcesheep.config.SheepResourceLoader"
+      }
     ]
   },
   "mixins": [
