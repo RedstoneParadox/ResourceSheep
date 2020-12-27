@@ -1,7 +1,7 @@
 package io.github.redstoneparadox.resourcesheep.entity
 
-import io.github.redstoneparadox.resourcesheep.ResourceSheep
 import io.github.redstoneparadox.resourcesheep.ResourceSheep.id
+import io.github.redstoneparadox.resourcesheep.config.SheepResourceLoader
 import io.github.redstoneparadox.resourcesheep.item.ResourceSheepItems
 import net.fabricmc.fabric.api.`object`.builder.v1.entity.FabricDefaultAttributeRegistry
 import net.fabricmc.fabric.api.`object`.builder.v1.entity.FabricEntityTypeBuilder
@@ -19,30 +19,19 @@ import net.minecraft.util.registry.Registry
 import net.minecraft.world.World
 
 class ResourceSheepEntity(entityType: EntityType<out SheepEntity>, world: World): SheepEntity(entityType, world) {
-    private val RESOURCE_DROPS: MutableMap<Identifier, ItemStack> = mutableMapOf()
-    var resource: Identifier = Identifier("minecraft:air")
-
-    init {
-        val defaultStack = ItemStack(ResourceSheepItems.RESOURCE_WOOL)
-        var nbt = defaultStack.orCreateTag
-        nbt.putString("resource", "minecraft:air")
-
-        RESOURCE_DROPS[Identifier("minecraft:air")] = defaultStack
-
-        val coalStack = defaultStack.copy()
-        nbt = coalStack.orCreateTag
-        nbt.putString("resource", "minecraft:coal")
-
-        RESOURCE_DROPS[Identifier("minecraft:coal")] = coalStack
-    }
+    var resourceId: Identifier = Identifier("minecraft:air")
 
     override fun sheared(shearedSoundCategory: SoundCategory?) {
         world.playSoundFromEntity(null as PlayerEntity?, this, SoundEvents.ENTITY_SHEEP_SHEAR, soundCategory, 1.0f, 1.0f)
         this.isSheared = true
         val i = 1 + random.nextInt(3)
+        val resource = SheepResourceLoader.getResource(resourceId)
+        val stack = ItemStack(ResourceSheepItems.RESOURCE_WOOL)
+        val nbt = stack.orCreateTag
+        nbt.putString("resource", resourceId.toString())
 
         for (j in 0 until i) {
-            val itemEntity = this.dropStack(RESOURCE_DROPS[resource], 1.0f)
+            val itemEntity = this.dropStack(stack, 1.0f)
             if (itemEntity != null) {
                 itemEntity.velocity = itemEntity.velocity.add(
                     ((random.nextFloat() - random.nextFloat()) * 0.1f).toDouble(),
@@ -54,12 +43,12 @@ class ResourceSheepEntity(entityType: EntityType<out SheepEntity>, world: World)
     }
 
     override fun toTag(tag: CompoundTag): CompoundTag {
-        tag.putString("resource", resource.toString())
+        tag.putString("resource", resourceId.toString())
         return super.toTag(tag)
     }
 
     override fun fromTag(tag: CompoundTag) {
-        if (tag.contains("resource")) resource = Identifier(tag.getString("resource"))
+        if (tag.contains("resource")) resourceId = Identifier(tag.getString("resource"))
         super.fromTag(tag)
     }
 

@@ -5,7 +5,6 @@ import blue.endless.jankson.JsonArray
 import blue.endless.jankson.JsonObject
 import blue.endless.jankson.JsonPrimitive
 import io.github.cottonmc.jankson.JanksonFactory
-import io.github.redstoneparadox.resourcesheep.ResourceSheep
 import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.api.entrypoint.PreLaunchEntrypoint
 import net.minecraft.util.DyeColor
@@ -13,10 +12,25 @@ import net.minecraft.util.Identifier
 import java.io.File
 
 object SheepResourceLoader: PreLaunchEntrypoint {
-    private val resources: MutableMap<Identifier, SheepResource> = mutableMapOf()
+    private val RESOURCE_MAP: MutableMap<Identifier, SheepResource> = mutableMapOf()
+    private val RESOURCE_LIST: MutableList<SheepResource> = mutableListOf()
+    private val DEFAULT_RESOURCE = SheepResource(
+        Identifier("minecraft:air"),
+        false,
+        Identifier("minecraft:block/dirt.png"),
+        "ore",
+        DyeColor.WHITE,
+        Identifier("sheepresources:smelt_wool")
+    )
 
-    fun getResources(): Map<Identifier, SheepResource> {
-        return resources
+    fun getResources(): List<SheepResource> {
+        return RESOURCE_LIST
+    }
+
+    fun getResource(id: Identifier?): SheepResource {
+        if (id == null) return DEFAULT_RESOURCE
+
+        return RESOURCE_MAP[id] ?: DEFAULT_RESOURCE
     }
 
     override fun onPreLaunch() {
@@ -42,19 +56,14 @@ object SheepResourceLoader: PreLaunchEntrypoint {
 
         for (element in (json["resources"] as JsonArray)) {
             val resource = jankson.marshaller.marshall(SheepResource::class.java, element)
-            resources[resource.id] = resource
+
+            RESOURCE_MAP[resource.id] = resource
+            RESOURCE_LIST.add(resource)
         }
 
-        if (resources.isEmpty()) {
-            val id = Identifier("minecraft:air")
-            resources[id] = SheepResource(
-                id,
-                false,
-                Identifier("minecraft:block/dirt.png"),
-                "ore",
-                DyeColor.WHITE,
-                Identifier("sheepresources:smelt_wool")
-            )
+        if (RESOURCE_MAP.isEmpty()) {
+            RESOURCE_MAP[DEFAULT_RESOURCE.id] = DEFAULT_RESOURCE
+            RESOURCE_LIST.add(DEFAULT_RESOURCE)
         }
     }
 
