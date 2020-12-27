@@ -14,16 +14,9 @@ import net.minecraft.util.registry.Registry
 
 object ResourceSheep: ModInitializer {
     val MOD_ID: String = "resourcesheep"
-    val RESOURCE_SHEEP_ENTITY_TYPE: EntityType<ResourceSheepEntity> = FabricEntityTypeBuilder
-        .create(SpawnGroup.CREATURE, ::ResourceSheepEntity)
-        .dimensions(EntityDimensions.fixed(0.9f, 1.3f))
-        .build()
 
     override fun onInitialize() {
-        println("Sanity check!")
-        Registry.register(Registry.ENTITY_TYPE, id("resource_sheep"), RESOURCE_SHEEP_ENTITY_TYPE)
-        FabricDefaultAttributeRegistry.register(RESOURCE_SHEEP_ENTITY_TYPE, SheepEntity.createSheepAttributes())
-
+        ResourceSheepEntity.init()
         ResourceSheepItems.init()
     }
 
