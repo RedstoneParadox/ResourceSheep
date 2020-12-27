@@ -4,6 +4,7 @@ import io.github.redstoneparadox.resourcesheep.config.SheepResourceLoader
 import io.github.redstoneparadox.resourcesheep.entity.ResourceSheepEntity
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings
 import net.minecraft.entity.LivingEntity
+import net.minecraft.entity.passive.SheepEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
@@ -44,9 +45,25 @@ class ResourceDyeItem: Item(FabricItemSettings()) {
         if (entity is ResourceSheepEntity) {
             val nbt = stack.orCreateTag
             val resourceId = Identifier(nbt.getString("resource"))
+            val resource = SheepResourceLoader.getResource(resourceId)
 
             if (entity.isAlive && !entity.isSheared && entity.resourceId != resourceId) {
                 entity.resourceId = resourceId
+                entity.color = resource.woolColor
+                stack.decrement(1)
+            }
+
+            return ActionResult.success(user.world.isClient)
+        }
+        else if (entity is SheepEntity) {
+            val nbt = stack.orCreateTag
+            val resourceId = Identifier(nbt.getString("resource"))
+            val resource = SheepResourceLoader.getResource(resourceId)
+
+            if (entity.isAlive && !entity.isSheared) {
+                val newEntity = entity.method_29243(ResourceSheepEntity.TYPE, true)!!
+                newEntity.resourceId = resourceId
+                newEntity.color = resource.woolColor
                 stack.decrement(1)
             }
 
