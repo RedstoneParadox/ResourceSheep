@@ -16,7 +16,7 @@ object SheepResourceLoader: PreLaunchEntrypoint {
     private val RESOURCE_LIST: MutableList<SheepResource> = mutableListOf()
     private val DEFAULT_RESOURCE = SheepResource(
         Identifier("minecraft:air"),
-        false,
+        true,
         Identifier("minecraft:block/dirt.png"),
         "ore",
         DyeColor.WHITE,

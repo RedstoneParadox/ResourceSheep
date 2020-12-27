@@ -14,6 +14,8 @@ import net.minecraft.item.ItemStack
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.sound.SoundCategory
 import net.minecraft.sound.SoundEvents
+import net.minecraft.text.Text
+import net.minecraft.text.TranslatableText
 import net.minecraft.util.Identifier
 import net.minecraft.util.registry.Registry
 import net.minecraft.world.World
@@ -62,5 +64,17 @@ class ResourceSheepEntity(entityType: EntityType<out SheepEntity>, world: World)
             Registry.register(Registry.ENTITY_TYPE, id("resource_sheep"), TYPE)
             FabricDefaultAttributeRegistry.register(TYPE, createSheepAttributes())
         }
+    }
+
+    override fun getDefaultName(): Text {
+        val resource = SheepResourceLoader.getResource(resourceId)
+
+        val translationKey = if (resource.block) {
+            "block.${resource.id.namespace}.${resource.id.path}"
+        } else {
+            "item.${resource.id.namespace}.${resource.id.path}"
+        }
+
+        return super.getDefaultName().copy().append(" - ").append(TranslatableText(translationKey))
     }
 }
