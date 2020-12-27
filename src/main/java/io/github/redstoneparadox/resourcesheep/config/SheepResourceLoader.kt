@@ -13,7 +13,11 @@ import net.minecraft.util.Identifier
 import java.io.File
 
 object SheepResourceLoader: PreLaunchEntrypoint {
-    private val resources: MutableList<SheepResource> = mutableListOf()
+    private val resources: MutableMap<Identifier, SheepResource> = mutableMapOf()
+
+    fun getResources(): Map<Identifier, SheepResource> {
+        return resources
+    }
 
     override fun onPreLaunch() {
         try {
@@ -37,7 +41,20 @@ object SheepResourceLoader: PreLaunchEntrypoint {
         val json = jankson.load(fileText)
 
         for (element in (json["resources"] as JsonArray)) {
-            resources.add(jankson.marshaller.marshall(SheepResource::class.java, element))
+            val resource = jankson.marshaller.marshall(SheepResource::class.java, element)
+            resources[resource.id] = resource
+        }
+
+        if (resources.isEmpty()) {
+            val id = Identifier("minecraft:air")
+            resources[id] = SheepResource(
+                id,
+                false,
+                Identifier("minecraft:block/dirt.png"),
+                "ore",
+                DyeColor.WHITE,
+                Identifier("sheepresources:smelt_wool")
+            )
         }
     }
 
