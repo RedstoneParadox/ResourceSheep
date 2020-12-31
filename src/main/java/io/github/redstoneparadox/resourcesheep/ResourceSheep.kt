@@ -1,5 +1,6 @@
 package io.github.redstoneparadox.resourcesheep
 
+import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
 import io.github.redstoneparadox.resourcesheep.config.SheepResourceLoader
@@ -32,17 +33,54 @@ object ResourceSheep: ModInitializer {
                         val require = JsonObject()
                         require.add("resource", JsonPrimitive(resource.id.toString()))
                         data.add("require", require)
+                        value.add("data", data)
                     }
                 }
             }
+            else if (json.has("ingredient")) {
+                val ingredient = json["ingredient"] as JsonObject
 
-            val result = json["result"]
+                if (ingredient["item"].asString == "sheepresources:resource_wool") {
+                    val data = JsonObject()
+                    val require = JsonObject()
+                    require.add("resource", JsonPrimitive(resource.id.toString()))
+                    data.add("require", require)
+                    ingredient.add("data", data)
+                }
+            }
+            else if (json.has("ingredients")) {
+                val ingredients = json["ingredients"] as JsonArray
 
-            if (result is JsonObject) {
-                result.add("item", JsonPrimitive(resource.id.toString()))
+                for (element in ingredients) {
+
+                    if (element is JsonObject && element["item"].asString == "sheepresources:resource_wool") {
+                        val data = JsonObject()
+                        val require = JsonObject()
+                        require.add("resource", JsonPrimitive(resource.id.toString()))
+                        data.add("require", require)
+                        element.add("data", data)
+                    }
+                }
             }
             else {
-                json.add("result", JsonPrimitive(resource.id.toString()))
+                throw NotImplementedError("Template uses unsupported recipe type!")
+            }
+
+            if (json.has("result")) {
+                val result = json["result"]
+
+                if (result is JsonObject) {
+                    result.add("item", JsonPrimitive(resource.id.toString()))
+                }
+                else if (result is JsonPrimitive) {
+                    json.add("result", JsonPrimitive(resource.id.toString()))
+                }
+                else {
+                    throw NotImplementedError("Template uses unsupported recipe type!")
+                }
+            }
+            else {
+                throw NotImplementedError("Template uses unsupported recipe type!")
             }
         }
     }
