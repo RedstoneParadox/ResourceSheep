@@ -9,5 +9,5 @@ data class SheepResource(
     val baseTexture: Identifier,
     val pattern: String,
     val woolColor: DyeColor,
-    val recipe: Identifier
+    val recipe: String
 )

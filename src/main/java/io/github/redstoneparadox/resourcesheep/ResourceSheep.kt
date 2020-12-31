@@ -1,13 +1,13 @@
 package io.github.redstoneparadox.resourcesheep
 
-import com.google.gson.JsonArray
-import com.google.gson.JsonObject
-import com.google.gson.JsonPrimitive
+import com.google.gson.*
 import io.github.redstoneparadox.resourcesheep.config.SheepResourceLoader
 import io.github.redstoneparadox.resourcesheep.entity.ResourceSheepEntity
 import io.github.redstoneparadox.resourcesheep.item.ResourceSheepItems
 import net.fabricmc.api.ModInitializer
+import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.util.Identifier
+import java.io.File
 
 object ResourceSheep: ModInitializer {
     val MOD_ID: String = "resourcesheep"
@@ -17,10 +17,13 @@ object ResourceSheep: ModInitializer {
         ResourceSheepItems.init()
     }
 
-    private fun fillTemplates() {
+    fun fillTemplates(): Map<Identifier, JsonElement> {
+        val map: MutableMap<Identifier, JsonElement> = mutableMapOf()
+
         for (resource in SheepResourceLoader.getResources()) {
-            // TODO: Actually load the recipe template
-            val json = JsonObject()
+            val json = loadTemplateFile(resource.recipe)
+
+            if (json.size() == 0) continue
 
             if (json.has("key")) {
                 val key = json["key"] as JsonObject
@@ -40,7 +43,7 @@ object ResourceSheep: ModInitializer {
             else if (json.has("ingredient")) {
                 val ingredient = json["ingredient"] as JsonObject
 
-                if (ingredient["item"].asString == "sheepresources:resource_wool") {
+                if (ingredient["item"].asString == "resourcesheep:resource_wool") {
                     val data = JsonObject()
                     val require = JsonObject()
                     require.add("resource", JsonPrimitive(resource.id.toString()))
@@ -67,22 +70,41 @@ object ResourceSheep: ModInitializer {
             }
 
             if (json.has("result")) {
-                val result = json["result"]
-
-                if (result is JsonObject) {
-                    result.add("item", JsonPrimitive(resource.id.toString()))
-                }
-                else if (result is JsonPrimitive) {
-                    json.add("result", JsonPrimitive(resource.id.toString()))
-                }
-                else {
-                    throw NotImplementedError("Template uses unsupported recipe type!")
+                when (val result = json["result"]) {
+                    is JsonObject -> result.add("item", JsonPrimitive(resource.id.toString()))
+                    is JsonPrimitive -> json.add("result", JsonPrimitive(resource.id.toString()))
+                    else -> throw NotImplementedError("Template uses unsupported recipe type!")
                 }
             }
             else {
                 throw NotImplementedError("Template uses unsupported recipe type!")
             }
+
+            map[Identifier("resourcesheep:${resource.id.path}_from_resource_wool")] = json
         }
+
+        return map
+    }
+
+    private fun loadTemplateFile(name: String): JsonObject {
+        try {
+            val file = File(FabricLoader.getInstance().configDirectory, "resourcesheep/templates/$name.json")
+
+            if (file.exists()) {
+                val fileText = file.readText()
+                val gson = GsonBuilder().create()
+                return gson.fromJson(fileText, JsonObject::class.java)
+            }
+            else {
+                file.parentFile.mkdirs()
+                file.createNewFile()
+            }
+        } catch (e: Exception) {
+            println("template $name could not be loaded!")
+            e.printStackTrace()
+        }
+
+        return JsonObject()
     }
 
     fun id(path: String): Identifier {

@@ -20,7 +20,7 @@ object SheepResourceLoader: PreLaunchEntrypoint {
         Identifier("minecraft:block/dirt.png"),
         "ore",
         DyeColor.WHITE,
-        Identifier("sheepresources:smelt_wool")
+        ""
     )
 
     fun getResources(): List<SheepResource> {
@@ -106,7 +106,7 @@ object SheepResourceLoader: PreLaunchEntrypoint {
                     marshaller.marshall(Identifier::class.java, json["base_texture"]),
                     (json["pattern"] as JsonPrimitive).asString(),
                     marshaller.marshall(DyeColor::class.java, json["wool_color"]),
-                    marshaller.marshall(Identifier::class.java, json["recipe"])
+                    (json["recipe"] as JsonPrimitive).asString()
                 )
             }
             .build()
